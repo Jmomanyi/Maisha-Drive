@@ -91,14 +91,14 @@ ProjectSettings/
 *.tga
 *.asset
 *.shaderx
-*.unity
+unity
 *.wav
 *.hlsl
 *.cginc
 *.dll
 *.prefab
 *.cubemap
-*.terrainlayer
+terrainlayer
 
 
 
