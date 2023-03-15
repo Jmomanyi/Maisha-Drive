@@ -13,12 +13,19 @@ public class Carmovement : MonoBehaviour
         m_jump = Input.GetAxis("Jump");
 
     }
+/// <summary>
+/// This function updates the healthbar by dividing the current health by the max health
+/// </summary>
 
     public void update_healthbar()
     {
         Healthbar.fillAmount = currentHealth / maxhealth;
     }
 
+   /// <summary>
+   /// The Steer() function sets the steerAngle of the front wheels to the maxSteerAngle multiplied by
+   /// the horizontalInput
+   /// </summary>
     public void Steer()
     {
         m_steeringAngle = maxSteerAngle * m_horizontalInput;
@@ -26,6 +33,9 @@ public class Carmovement : MonoBehaviour
         frontPassengerW.steerAngle = m_steeringAngle;
     }
 //start
+  /// <summary>
+  /// If the player presses the "E" key, the engine sound will play and the engine will turn on
+  /// </summary>
     public void StartEngine()
     {
          if (Input.GetKeyDown(KeyCode.E)){
@@ -36,15 +46,29 @@ public class Carmovement : MonoBehaviour
                 m_engineOn = false;
          }
     }
+
+/// <summary>
+/// If the engine is on, play the drive sound, and apply torque to the wheels
+/// </summary>
     private void Accelerate()
     {
         if (m_engineOn==true)
         {
-            carsound.PlayDrivingSound();
+            Debug.Log("engine on");
+            if(m_verticalInput>0){
+                speed= carRigidbody.velocity.magnitude;
+                carsound.IdleSource.Stop();
+         carsound.PlayDrivesound(speed,maxspeed,direction);
+
               frontDriverW.motorTorque = m_verticalInput * motorForce;
             frontPassengerW.motorTorque = m_verticalInput * motorForce;
-
+            }
+if(m_verticalInput==0){
+    carsound.playIdle();
+    carsound.DriveSource.Stop();
+}
         }
+       
       
     }
 //brke
@@ -88,8 +112,15 @@ public class Carmovement : MonoBehaviour
     void Start()
     {
         carRigidbody = GetComponent<Rigidbody>();
-        // carRigidbody.centerOfMass=centerofMass.transform.localPosition;
+        carRigidbody.centerOfMass=centerofMass.transform.localPosition;
         currentHealth = maxhealth;
+
+        if(m_verticalInput<0){
+            direction=-1;
+        }
+        else{
+            direction=1;
+        }
         update_healthbar();
 
         if (currentHealth <= 0)
@@ -141,7 +172,7 @@ public class Carmovement : MonoBehaviour
     private float m_horizontalInput;
     private float m_verticalInput;
     private float m_jump;
-    private bool m_engineOn=false;
+    private bool m_engineOn;
     private float m_steeringAngle;
     public WheelCollider frontDriverW,
         frontPassengerW;
@@ -151,12 +182,15 @@ public class Carmovement : MonoBehaviour
         frontPassengerT;
     public Transform rearDriverT,
         rearPassengerT;
-    public float maxSteerAngle = 30f;
+    public float maxSteerAngle = 35f;
+    private float speed;
+    private float maxspeed = 100f;
     public float motorForce = 500f;
 
     public float brakePower = 1000f;
+    private int direction;
 
-    // public GameObject centerofMass;
+     public GameObject centerofMass;
     public Rigidbody carRigidbody;
 
     public Carsound carsound;//sound
