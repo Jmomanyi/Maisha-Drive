@@ -38,39 +38,32 @@ public class Carmovement : MonoBehaviour
   /// </summary>
     public void StartEngine()
     {
-         if (Input.GetKeyDown(KeyCode.E)){
-        carsound.PlayIgnitionSound();
-        m_engineOn = true;
-         }
-         else{
-                m_engineOn = false;
-         }
-    }
-
-/// <summary>
-/// If the engine is on, play the drive sound, and apply torque to the wheels
-/// </summary>
-    private void Accelerate()
-    {
-        if (m_engineOn==true)
+         if (Input.GetKey(KeyCode.E))
         {
-            Debug.Log("engine on");
-            if(m_verticalInput>0){
-                speed= carRigidbody.velocity.magnitude;
-                carsound.IdleSource.Stop();
-         carsound.PlayDrivesound(speed,maxspeed,direction);
-
-              frontDriverW.motorTorque = m_verticalInput * motorForce;
-            frontPassengerW.motorTorque = m_verticalInput * motorForce;
-            }
-if(m_verticalInput==0){
-    carsound.playIdle();
-    carsound.DriveSource.Stop();
-}
+            carsound.PlayIgnitionSound();
+            m_engineOn = true;
         }
-       
-      
     }
+public void StopEngine()
+{
+    if (Input.GetKey(KeyCode.S))
+    {
+        m_engineOn = false;
+    }
+}
+
+private void Accelerate()
+{   
+    if (m_engineOn==true)
+    {
+        frontDriverW.motorTorque = m_verticalInput * motorForce;
+        frontPassengerW.motorTorque = m_verticalInput * motorForce*drag;
+        
+    }
+   
+}
+
+
 //brke
     private void Brake()
     {
@@ -80,6 +73,8 @@ if(m_verticalInput==0){
             frontPassengerW.brakeTorque = brakePower;
             rearDriverW.brakeTorque = brakePower;
             rearPassengerW.brakeTorque = brakePower;
+            BrakelightOff.SetActive(false);
+
         }
         else
         {
@@ -87,6 +82,8 @@ if(m_verticalInput==0){
             frontPassengerW.brakeTorque = 0;
             rearDriverW.brakeTorque = 0;
             rearPassengerW.brakeTorque = 0;
+             BrakelightOff.SetActive(true);
+
         }
     }
 
@@ -112,9 +109,8 @@ if(m_verticalInput==0){
     void Start()
     {
         carRigidbody = GetComponent<Rigidbody>();
-        carRigidbody.centerOfMass=centerofMass.transform.localPosition;
+       // carRigidbody.centerOfMass=centerofMass.transform.localPosition;
         currentHealth = maxhealth;
-
         if(m_verticalInput<0){
             direction=-1;
         }
@@ -123,9 +119,10 @@ if(m_verticalInput==0){
         }
         update_healthbar();
 
-        if (currentHealth <= 0)
+        if (currentHealth == 0)
         {
             Debug.Log("Game Over");
+
         }
     }
 
@@ -139,6 +136,7 @@ if(m_verticalInput==0){
         getInput();
         Steer();
         StartEngine();
+        StopEngine();
         Accelerate();
         Brake();
         UpdateWheelPoses();
@@ -184,13 +182,16 @@ if(m_verticalInput==0){
         rearPassengerT;
     public float maxSteerAngle = 35f;
     private float speed;
-    private float maxspeed = 100f;
+    private float maxSpeed=150;
+    private float drag=0.2f;
+    
     public float motorForce = 500f;
 
     public float brakePower = 1000f;
     private int direction;
 
-     public GameObject centerofMass;
+    // public GameObject centerofMass;
+     public GameObject BrakelightOff;
     public Rigidbody carRigidbody;
 
     public Carsound carsound;//sound
